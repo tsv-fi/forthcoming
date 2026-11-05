@@ -21,20 +21,15 @@ use APP\plugins\generic\forthcoming\ForthcomingPlugin;
 use APP\submission\Submission;
 use APP\template\TemplateManager;
 use PKP\security\Role;
+use PKP\userGroup\UserGroup;
 
 class Handler extends \APP\handler\Handler
 {
-    public static ForthcomingPlugin $plugin;
-    public static ?int $forthcomingIssueId;
-
-    public static function setPlugin(ForthcomingPlugin $plugin): void
-    {
-        static::$plugin = $plugin;
-    }
-
-    public static function setForthcomingId(?int $forthcomingIssueId): void
-    {
-        static::$forthcomingIssueId = $forthcomingIssueId;
+    public function __construct(
+        public ForthcomingPlugin $plugin,
+        public int $forthcomingIssueId
+    ) {
+        parent::__construct();
     }
 
     /**
@@ -48,7 +43,7 @@ class Handler extends \APP\handler\Handler
         $templateMgr = TemplateManager::getManager($request);
         $this->setupTemplate($request);
 
-        if (!static::$forthcomingIssueId) {
+        if (!$this->forthcomingIssueId) {
             return;
         }
 
@@ -56,16 +51,24 @@ class Handler extends \APP\handler\Handler
 
         $submissions = $collector
             ->filterByContextIds([$contextId])
-            ->filterByIssueIds([static::$forthcomingIssueId])
+            ->filterByIssueIds([$this->forthcomingIssueId])
             ->filterByStatus([Submission::STATUS_PUBLISHED])
             ->orderBy($collector::ORDERBY_DATE_PUBLISHED, $collector::ORDER_DIR_ASC)
             ->getMany()
-            ->filter(fn (Submission $submission) => (int) ($publication = $submission->getCurrentPublication())?->getData('issueId') === static::$forthcomingIssueId && $publication->getData('datePublished'))
+            ->filter(fn (Submission $submission) => (int) ($publication = $submission->getCurrentPublication())?->getData('issueId') === $this->forthcomingIssueId && $publication->getData('datePublished'))
             ->toArray();
 
-        $authorUserGroups = Repo::userGroup()->getByRoleIds([Role::ROLE_ID_AUTHOR], $contextId);
+        // Repo::userGroup()->getByRoleIds() uses cursor(), which skips
+        // loading settings (e.g. the group name shown next to authors)
+        $authorUserGroups = UserGroup::withRoleIds([Role::ROLE_ID_AUTHOR])
+            ->withContextIds([$contextId])
+            ->get();
 
-        $templateMgr->assign(['forthcoming' => $submissions, 'authorUserGroups' => $authorUserGroups]);
-        $templateMgr->display(static::$plugin->getTemplateResource('content.tpl'));
+        $templateMgr->assign([
+            'forthcoming' => $submissions,
+            'authorUserGroups' => $authorUserGroups,
+            'issue' => Repo::issue()->get($this->forthcomingIssueId),
+        ]);
+        $templateMgr->display($this->plugin->getTemplateResource('content.tpl'));
     }
 }
