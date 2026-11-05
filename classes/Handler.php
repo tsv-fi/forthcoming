@@ -20,7 +20,9 @@ use APP\facades\Repo;
 use APP\plugins\generic\forthcoming\ForthcomingPlugin;
 use APP\submission\Submission;
 use APP\template\TemplateManager;
+use PKP\db\DAORegistry;
 use PKP\security\Role;
+use PKP\submission\GenreDAO;
 
 class Handler extends \APP\handler\Handler
 {
@@ -65,7 +67,18 @@ class Handler extends \APP\handler\Handler
 
         $authorUserGroups = Repo::userGroup()->getByRoleIds([Role::ROLE_ID_AUTHOR], $contextId);
 
-        $templateMgr->assign(['forthcoming' => $submissions, 'authorUserGroups' => $authorUserGroups]);
+        /** @var GenreDAO $genreDao */
+        $genreDao = DAORegistry::getDAO('GenreDAO');
+        $primaryGenreIds = array_map(
+            fn ($genre) => $genre->getId(),
+            $genreDao->getPrimaryByContextId($contextId)->toArray()
+        );
+
+        $templateMgr->assign([
+            'forthcoming' => $submissions,
+            'authorUserGroups' => $authorUserGroups,
+            'primaryGenreIds' => $primaryGenreIds,
+        ]);
         $templateMgr->display(static::$plugin->getTemplateResource('content.tpl'));
     }
 }
