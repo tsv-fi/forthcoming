@@ -25,5 +25,11 @@
 		{fbvElement type="select" id="forthcomingIssueId" translate=false from=$issues selected=$forthcomingIssueId}
 	{/fbvFormArea}
 
+	{fbvFormArea id="forthcomingSortOrderFormArea"}
+		{fbvFormSection title="plugins.generic.forthcoming.settings.sortOrder"}
+			{fbvElement type="select" id="sortOrder" translate=false from=$sortOrders selected=$sortOrder size=$fbvStyles.size.MEDIUM}
+		{/fbvFormSection}
+	{/fbvFormArea}
+
 	{fbvFormButtons}
 </form>

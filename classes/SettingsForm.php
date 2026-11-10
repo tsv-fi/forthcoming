@@ -46,6 +46,7 @@ class SettingsForm extends Form
     {
         $contextId = Application::get()->getRequest()->getContext()->getId();
         $this->setData('forthcomingIssueId', $this->plugin->getSetting($contextId, 'forthcomingIssueId'));
+        $this->setData('sortOrder', $this->plugin->getSetting($contextId, 'sortOrder') === 'desc' ? 'desc' : 'asc');
         parent::initData();
     }
 
@@ -54,7 +55,7 @@ class SettingsForm extends Form
      */
     public function readInputData(): void
     {
-        $this->readUserVars(['forthcomingIssueId']);
+        $this->readUserVars(['forthcomingIssueId', 'sortOrder']);
         parent::readInputData();
     }
 
@@ -79,7 +80,12 @@ class SettingsForm extends Form
             ->prepend(__('common.none'), 0)
             ->toArray();
 
-        $templateMgr->assign(['issues' => $issues, 'pluginName' => $this->plugin->getName()]);
+        $sortOrders = [
+            'asc' => __('plugins.generic.forthcoming.settings.sortOrder.asc'),
+            'desc' => __('plugins.generic.forthcoming.settings.sortOrder.desc'),
+        ];
+
+        $templateMgr->assign(['issues' => $issues, 'sortOrders' => $sortOrders, 'pluginName' => $this->plugin->getName()]);
         return parent::fetch($request, $template, $display);
     }
 
@@ -90,6 +96,7 @@ class SettingsForm extends Form
     {
         $contextId = Application::get()->getRequest()->getContext()->getId();
         $this->plugin->updateSetting($contextId, 'forthcomingIssueId', $this->getData('forthcomingIssueId'));
+        $this->plugin->updateSetting($contextId, 'sortOrder', $this->getData('sortOrder') === 'desc' ? 'desc' : 'asc');
 
         $notificationMgr = new NotificationManager();
         $notificationMgr->createTrivialNotification(

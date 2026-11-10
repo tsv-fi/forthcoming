@@ -53,12 +53,15 @@ class Handler extends \APP\handler\Handler
         }
 
         $collector = Repo::submission()->getCollector();
+        $orderDirection = static::$plugin->getSetting($contextId, 'sortOrder') === 'desc'
+            ? $collector::ORDER_DIR_DESC
+            : $collector::ORDER_DIR_ASC;
 
         $submissions = $collector
             ->filterByContextIds([$contextId])
             ->filterByIssueIds([static::$forthcomingIssueId])
             ->filterByStatus([Submission::STATUS_PUBLISHED])
-            ->orderBy($collector::ORDERBY_DATE_PUBLISHED, $collector::ORDER_DIR_ASC)
+            ->orderBy($collector::ORDERBY_DATE_PUBLISHED, $orderDirection)
             ->getMany()
             ->filter(fn (Submission $submission) => (int) ($publication = $submission->getCurrentPublication())?->getData('issueId') === static::$forthcomingIssueId && $publication->getData('datePublished'))
             ->toArray();

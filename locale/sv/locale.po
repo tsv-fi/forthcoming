@@ -21,3 +21,12 @@ msgstr "Detta plugin lägger till stöd för visande av kommande artiklar innan 
 
 msgid "plugins.generic.forthcoming.pageTitle"
 msgstr "Kommande"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder"
+msgstr "Ordning för kommande artiklar"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder.asc"
+msgstr "Äldsta först (efter publiceringsdatum)"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder.desc"
+msgstr "Nyaste först (efter publiceringsdatum)"

@@ -27,3 +27,12 @@ msgstr "Seleciona o próximo número"
 
 msgid "plugins.generic.forthcoming.label"
 msgstr "Próximo(s)"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder"
+msgstr "Ordem dos artigos futuros"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder.asc"
+msgstr "Mais antigos primeiro (por data de publicação)"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder.desc"
+msgstr "Mais recentes primeiro (por data de publicação)"

@@ -26,3 +26,12 @@ msgstr "Izberi nastajajočo številko"
 
 msgid "plugins.generic.forthcoming.label"
 msgstr "Nastajajoča številka"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder"
+msgstr "Vrstni red prihajajočih člankov"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder.asc"
+msgstr "Najprej najstarejši (po datumu objave)"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder.desc"
+msgstr "Najprej najnovejši (po datumu objave)"

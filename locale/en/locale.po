@@ -26,3 +26,12 @@ msgstr "Select the Forthcoming issue"
 
 msgid "plugins.generic.forthcoming.label"
 msgstr "Forthcoming"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder"
+msgstr "Order of forthcoming articles"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder.asc"
+msgstr "Oldest first (by publication date)"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder.desc"
+msgstr "Newest first (by publication date)"
