@@ -67,7 +67,6 @@ class Handler extends \APP\handler\Handler
         $templateMgr->assign([
             'forthcoming' => $submissions,
             'authorUserGroups' => $authorUserGroups,
-            'issue' => Repo::issue()->get($this->forthcomingIssueId),
         ]);
         $templateMgr->display($this->plugin->getTemplateResource('content.tpl'));
     }

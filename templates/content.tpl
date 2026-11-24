@@ -14,20 +14,6 @@
 
 <h1>{$pageTitle|escape}</h1>
 <div class="page page_issue">
-	{if $issue && $issue->getDatePublished()}
-		<div class="obj_issue_toc">
-			<div class="heading">
-				<div class="published">
-					<span class="label">
-						{translate key="submissions.published"}:
-					</span>
-					<span class="value">
-						{$issue->getDatePublished()|date_format:$dateFormatShort}
-					</span>
-				</div>
-			</div>
-		</div>
-	{/if}
 	<ul class="cmp_article_list articles">
 	{foreach from=$forthcoming item=article}
 		<li>
