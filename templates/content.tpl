@@ -18,11 +18,11 @@
 	{foreach from=$forthcoming item=article}
 		<li>
 			{assign var=articlePath value=$article->getBestId()}
+			{assign var=publication value=$article->getCurrentPublication()}
 			{if (!$section.hideAuthor && $article->getData('hideAuthor') == \APP\submission\Submission::AUTHOR_TOC_DEFAULT) || $article->getData('hideAuthor') == $smarty.const.AUTHOR_TOC_SHOW}
 				{assign var="showAuthor" value=true}
 			{/if}
 
-			{assign var=publication value=$article->getCurrentPublication()}
 			<div class="obj_article_summary">
 				<h2 class="title">
 					<a id="article-{$article->getId()}" {if $journal}href="{url journal=$journal->getPath() page="article" op="view" path=$articlePath}"{else}href="{url page="article" op="view" path=$articlePath}"{/if}>
@@ -35,7 +35,7 @@
 					</a>
 				</h2>
 
-				{if $showAuthor || ($article->getDatePublished() && $showDatePublished)}
+				{if $showAuthor || ($publication->getData('datePublished') && $showDatePublished)}
 				<div class="meta">
 					{if $showAuthor}
 					<div class="authors">
@@ -43,9 +43,9 @@
 					</div>
 					{/if}
 
-					{if $showDatePublished && $article->getDatePublished()}
+					{if $showDatePublished && $publication->getData('datePublished')}
 						<div class="published">
-							{$article->getDatePublished()|date_format:$dateFormatShort}
+							{$publication->getData('datePublished')|date_format:$dateFormatShort}
 						</div>
 					{/if}
 				</div>

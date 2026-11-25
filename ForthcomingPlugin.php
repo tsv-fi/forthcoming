@@ -137,9 +137,7 @@ class ForthcomingPlugin extends GenericPlugin
         $forthcomingIssueId = (int) $this->getSetting($request->getContext()->getId(), 'forthcomingIssueId');
 
         if ($forthcomingIssueId) {
-            define('HANDLER_CLASS', Handler::class);
-            Handler::setPlugin($this);
-            Handler::setForthcomingId($forthcomingIssueId);
+            $args[3] = new Handler($this, $forthcomingIssueId);
             return Hook::ABORT;
         }
 
