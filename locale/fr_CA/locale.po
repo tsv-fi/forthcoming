@@ -26,3 +26,20 @@ msgstr "Sélectionner le numéro à paraître"
 
 msgid "plugins.generic.forthcoming.label"
 msgstr "À paraître"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder"
+msgstr "Ordre des articles à paraître"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder.asc"
+msgstr "Les plus anciens en premier (par date de publication)"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder.desc"
+msgstr "Les plus récents en premier (par date de publication)"
+
+#, fuzzy
+msgid "plugins.generic.forthcoming.settings.issueInvalid"
+msgstr "Sélectionnez un numéro publié de cette revue."
+
+#, fuzzy
+msgid "plugins.generic.forthcoming.navMenuItem.description"
+msgstr "Lien vers la page des articles à paraître."

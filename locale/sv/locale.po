@@ -21,3 +21,28 @@ msgstr "Detta plugin lägger till stöd för visande av kommande artiklar innan 
 
 msgid "plugins.generic.forthcoming.pageTitle"
 msgstr "Kommande"
+
+#, fuzzy
+msgid "plugins.generic.forthcoming.settings.description"
+msgstr "Välj numret för kommande artiklar"
+
+#, fuzzy
+msgid "plugins.generic.forthcoming.label"
+msgstr "Kommande"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder"
+msgstr "Ordning för kommande artiklar"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder.asc"
+msgstr "Äldsta först (efter publiceringsdatum)"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder.desc"
+msgstr "Nyaste först (efter publiceringsdatum)"
+
+#, fuzzy
+msgid "plugins.generic.forthcoming.settings.issueInvalid"
+msgstr "Välj ett publicerat nummer av denna tidskrift."
+
+#, fuzzy
+msgid "plugins.generic.forthcoming.navMenuItem.description"
+msgstr "Länk till sidan med kommande artiklar."

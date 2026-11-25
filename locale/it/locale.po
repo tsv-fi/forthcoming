@@ -21,3 +21,28 @@ msgstr "Questo plugin permette di mostrare gli articoli già pronti prima che il
 
 msgid "plugins.generic.forthcoming.pageTitle"
 msgstr "In uscita"
+
+#, fuzzy
+msgid "plugins.generic.forthcoming.settings.description"
+msgstr "Seleziona il fascicolo In uscita"
+
+#, fuzzy
+msgid "plugins.generic.forthcoming.label"
+msgstr "In uscita"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder"
+msgstr "Ordine degli articoli in uscita"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder.asc"
+msgstr "Prima i meno recenti (per data di pubblicazione)"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder.desc"
+msgstr "Prima i più recenti (per data di pubblicazione)"
+
+#, fuzzy
+msgid "plugins.generic.forthcoming.settings.issueInvalid"
+msgstr "Seleziona un fascicolo pubblicato di questa rivista."
+
+#, fuzzy
+msgid "plugins.generic.forthcoming.navMenuItem.description"
+msgstr "Link alla pagina degli articoli in uscita."

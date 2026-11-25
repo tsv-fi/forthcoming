@@ -27,3 +27,20 @@ msgstr "Seleccione el próximo número"
 
 msgid "plugins.generic.forthcoming.label"
 msgstr "Próximo(s)"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder"
+msgstr "Orden de los artículos de próxima publicación"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder.asc"
+msgstr "Más antiguos primero (por fecha de publicación)"
+
+msgid "plugins.generic.forthcoming.settings.sortOrder.desc"
+msgstr "Más recientes primero (por fecha de publicación)"
+
+#, fuzzy
+msgid "plugins.generic.forthcoming.settings.issueInvalid"
+msgstr "Seleccione un número publicado de esta revista."
+
+#, fuzzy
+msgid "plugins.generic.forthcoming.navMenuItem.description"
+msgstr "Enlace a la página de artículos de próxima publicación."

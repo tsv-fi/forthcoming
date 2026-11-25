@@ -3,8 +3,8 @@
 /**
  * @file ForthcomingPlugin.php
  *
- * Copyright (c) 2014-2024 Simon Fraser University
- * Copyright (c) 2014-2024 John Willinsky
+ * Copyright (c) 2014-2026 Simon Fraser University
+ * Copyright (c) 2014-2026 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
  *
  * @package plugins.generic.forthcoming
@@ -22,11 +22,15 @@ use APP\plugins\generic\forthcoming\classes\SettingsForm;
 use PKP\core\JSONMessage;
 use PKP\linkAction\LinkAction;
 use PKP\linkAction\request\AjaxModal;
+use PKP\navigationMenu\NavigationMenuItem;
 use PKP\plugins\GenericPlugin;
 use PKP\plugins\Hook;
 
 class ForthcomingPlugin extends GenericPlugin
 {
+    /** Navigation menu item type for the Forthcoming listing page */
+    public const NMI_TYPE_FORTHCOMING = 'NMI_TYPE_FORTHCOMING';
+
     /**
      * @copydoc Plugin::getDisplayName()
      */
@@ -36,7 +40,7 @@ class ForthcomingPlugin extends GenericPlugin
     }
 
     /**
-     * @copydoc Plugin::getDisplayName()
+     * @copydoc Plugin::getDescription()
      */
     public function getDescription(): string
     {
@@ -56,6 +60,8 @@ class ForthcomingPlugin extends GenericPlugin
 
         if ($this->getEnabled($mainContextId)) {
             Hook::add('LoadHandler', [$this, 'loadHandler']);
+            Hook::add('NavigationMenus::itemTypes', [$this, 'addMenuItemTypes']);
+            Hook::add('NavigationMenus::displaySettings', [$this, 'setMenuItemDisplayDetails']);
 
             # Add Forthcoming label to article summary, hide Forthcoming issue from public issue archive and mark in backend archive, redirect calls to issue landing page to custom Forthcoming handler
             Hook::add('TemplateManager::display', [$this, 'displayTemplate']);
@@ -80,22 +86,27 @@ class ForthcomingPlugin extends GenericPlugin
         switch ($template) {
             // Redirect default issue toc page to Forthcoming page
             case 'frontend/pages/issue.tpl':
-                $issueId = $templateManager->getTemplateVars('issueId');
-                if ($forthcomingIssueId === (int) $issueId) {
+                $issue = $templateManager->getTemplateVars('issue');
+                if ($issue?->getId() === $forthcomingIssueId) {
                     $router = $request->getRouter();
                     $request->redirectUrl($router->url($request, null, 'forthcoming'));
                 }
                 break;
 
-            // Article landing page
+                // Article landing page
             case 'frontend/pages/article.tpl':
                 $publication = $templateManager->getTemplateVars('publication');
                 if ((int) $publication?->getData('issueId') === $forthcomingIssueId) {
+                    $templateManager->addStyleSheet(
+                        'forthcomingLabelStyles',
+                        '.forthcomingLabel span { border-radius: 5px; background: #ebebeb; color: #262626; padding: 6px; }',
+                        ['inline' => true, 'contexts' => 'frontend']
+                    );
                     $templateManager->registerFilter('output', [$this, 'articleLandingPageFilter']);
                 }
                 break;
 
-            // Remove Forthcoming issue from the list of issues
+                // Remove Forthcoming issue from the list of issues
             case 'frontend/pages/issueArchive.tpl':
                 $issues = $templateManager->getTemplateVars('issues');
                 $total = $templateManager->getTemplateVars('total');
@@ -109,9 +120,9 @@ class ForthcomingPlugin extends GenericPlugin
                 $templateManager->assign(['issues' => $issues, 'total' => $total]);
                 break;
 
-            // Backend archive display
+                // Backend archive display
             case 'manageIssues/issues.tpl':
-                $forthcomingIssueBackendStyles = "span#cell-{$forthcomingIssueId}-identification:after { font-family: FontAwesome; content: \"\f005\"; }";
+                $forthcomingIssueBackendStyles = "span#cell-{$forthcomingIssueId}-identification:after { font-family: FontAwesome; content: \"\\f005\"; }";
                 $templateManager->addStylesheet(
                     'forthcomingIssueBackendStyles',
                     $forthcomingIssueBackendStyles,
@@ -134,7 +145,11 @@ class ForthcomingPlugin extends GenericPlugin
         }
 
         $request = $this->getRequest();
-        $forthcomingIssueId = (int) $this->getSetting($request->getContext()->getId(), 'forthcomingIssueId');
+        $contextId = $request->getContext()?->getId();
+        if (!$contextId) {
+            return Hook::CONTINUE;
+        }
+        $forthcomingIssueId = (int) $this->getSetting($contextId, 'forthcomingIssueId');
 
         if ($forthcomingIssueId) {
             $args[3] = new Handler($this, $forthcomingIssueId);
@@ -147,7 +162,7 @@ class ForthcomingPlugin extends GenericPlugin
     }
 
     /**
-     * Removed the authorFormFilter and adds a "Forthcoming" label to the article's landing page
+     * Add a "Forthcoming" label to the article's landing page
      */
     public function articleLandingPageFilter($output, $templateMgr): string
     {
@@ -157,11 +172,44 @@ class ForthcomingPlugin extends GenericPlugin
 
         $offset = $matches[0][1];
         $newOutput = substr($output, 0, $offset);
-        $newOutput .= '<div class="forthcomingLabel"><span style="border-radius: 5px; background: #ebebeb; color: #262626; padding: 6px;">' . __('plugins.generic.forthcoming.label') . '</span></div><br />';
+        $newOutput .= '<div class="forthcomingLabel"><span>' . htmlspecialchars(__('plugins.generic.forthcoming.label')) . '</span></div><br />';
         $newOutput .= substr($output, $offset);
-        $output = $newOutput;
-        $templateMgr->unregisterFilter('output', [$this, 'authorFormFilter']);
-        return $output;
+        return $newOutput;
+    }
+
+    /**
+     * Add the Forthcoming listing page to the navigation menu item types
+     */
+    public function addMenuItemTypes(string $hookName, array $args): bool
+    {
+        $types = & $args[0];
+        $types[self::NMI_TYPE_FORTHCOMING] = [
+            'title' => __('plugins.generic.forthcoming.pageTitle'),
+            'description' => __('plugins.generic.forthcoming.navMenuItem.description'),
+        ];
+        return Hook::CONTINUE;
+    }
+
+    /**
+     * Set the URL of the Forthcoming menu item, and hide it when no Forthcoming issue is set
+     */
+    public function setMenuItemDisplayDetails(string $hookName, array $args): bool
+    {
+        /** @var NavigationMenuItem $navigationMenuItem */
+        [$navigationMenuItem] = $args;
+        if ($navigationMenuItem->getType() !== self::NMI_TYPE_FORTHCOMING) {
+            return Hook::CONTINUE;
+        }
+
+        $request = Application::get()->getRequest();
+        $contextId = $request->getContext()?->getId();
+        if (!$contextId || !$this->getSetting($contextId, 'forthcomingIssueId')) {
+            $navigationMenuItem->setIsDisplayed(false);
+            return Hook::CONTINUE;
+        }
+
+        $navigationMenuItem->setUrl($request->getRouter()->url($request, null, 'forthcoming'));
+        return Hook::CONTINUE;
     }
 
     /**

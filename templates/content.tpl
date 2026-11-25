@@ -1,9 +1,9 @@
 {**
  * templates/content.tpl
  *
- * Copyright (c) 2014-2024 Simon Fraser University
- * Copyright (c) 2014-2024 John Willinsky
- * Distributed under the GNU GPL v2. For full terms see the file docs/COPYING.
+ * Copyright (c) 2014-2026 Simon Fraser University
+ * Copyright (c) 2014-2026 John Willinsky
+ * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
  *
  * Display Forthcoming articles
  *}
@@ -19,7 +19,8 @@
 		<li>
 			{assign var=articlePath value=$article->getBestId()}
 			{assign var=publication value=$article->getCurrentPublication()}
-			{if (!$section.hideAuthor && $article->getData('hideAuthor') == \APP\submission\Submission::AUTHOR_TOC_DEFAULT) || $article->getData('hideAuthor') == $smarty.const.AUTHOR_TOC_SHOW}
+			{assign var="showAuthor" value=false}
+			{if !$publication->getData('hideAuthor') && !$sectionHideAuthor[$publication->getData('sectionId')]}
 				{assign var="showAuthor" value=true}
 			{/if}
 
@@ -56,16 +57,12 @@
 						{foreach from=$article->getGalleys() item=galley}
 							{if $primaryGenreIds}
 								{assign var="file" value=$galley->getFile()}
-								{if !$galley->getRemoteUrl() && !($file && in_array($file->getGenreId(), $primaryGenreIds))}
+								{if !$galley->getData('urlRemote') &&!($file && in_array($file->getGenreId(), $primaryGenreIds))}
 									{continue}
 								{/if}
 							{/if}
 							<li>
-								{assign var="hasArticleAccess" value=$hasAccess}
-								{if $currentContext->getSetting('publishingMode') == \APP\journal\Journal::PUBLISHING_MODE_OPEN || $publication->getData('accessStatus') == \APP\submission\Submission::ARTICLE_ACCESS_OPEN}
-									{assign var="hasArticleAccess" value=1}
-								{/if}
-								{include file="frontend/objects/galley_link.tpl" parent=$article labelledBy="article-{$article->getId()}" hasAccess=$hasArticleAccess purchaseFee=$currentJournal->getData('purchaseArticleFee') purchaseCurrency=$currentJournal->getData('currency')}
+								{include file="frontend/objects/galley_link.tpl" parent=$article labelledBy="article-{$article->getId()}" hasAccess=true}
 							</li>
 						{/foreach}
 					</ul>
