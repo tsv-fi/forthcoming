@@ -36,3 +36,11 @@ msgstr "Mais antigos primeiro (por data de publicação)"
 
 msgid "plugins.generic.forthcoming.settings.sortOrder.desc"
 msgstr "Mais recentes primeiro (por data de publicação)"
+
+#, fuzzy
+msgid "plugins.generic.forthcoming.settings.issueInvalid"
+msgstr "Selecione um número publicado desta revista."
+
+#, fuzzy
+msgid "plugins.generic.forthcoming.navMenuItem.description"
+msgstr "Link para a página de artigos futuros."

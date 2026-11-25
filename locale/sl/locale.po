@@ -35,3 +35,11 @@ msgstr "Najprej najstarejši (po datumu objave)"
 
 msgid "plugins.generic.forthcoming.settings.sortOrder.desc"
 msgstr "Najprej najnovejši (po datumu objave)"
+
+#, fuzzy
+msgid "plugins.generic.forthcoming.settings.issueInvalid"
+msgstr "Izberite objavljeno številko te revije."
+
+#, fuzzy
+msgid "plugins.generic.forthcoming.navMenuItem.description"
+msgstr "Povezava na stran s prihajajočimi članki."

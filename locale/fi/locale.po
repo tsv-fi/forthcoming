@@ -35,3 +35,11 @@ msgstr "Vanhin ensin (julkaisupäivän mukaan)"
 
 msgid "plugins.generic.forthcoming.settings.sortOrder.desc"
 msgstr "Uusin ensin (julkaisupäivän mukaan)"
+
+#, fuzzy
+msgid "plugins.generic.forthcoming.settings.issueInvalid"
+msgstr "Valitse jokin tämän lehden julkaistuista numeroista."
+
+#, fuzzy
+msgid "plugins.generic.forthcoming.navMenuItem.description"
+msgstr "Linkki tulevien artikkelien listaukseen."

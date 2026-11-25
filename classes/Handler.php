@@ -2,8 +2,8 @@
 /**
  * @file classes/Handler.php
  *
- * Copyright (c) 2014-2024 Simon Fraser University
- * Copyright (c) 2014-2024 John Willinsky
+ * Copyright (c) 2014-2026 Simon Fraser University
+ * Copyright (c) 2014-2026 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
  *
  * @package plugins.generic.forthcoming
@@ -20,21 +20,17 @@ use APP\facades\Repo;
 use APP\plugins\generic\forthcoming\ForthcomingPlugin;
 use APP\submission\Submission;
 use APP\template\TemplateManager;
+use PKP\db\DAORegistry;
 use PKP\security\Role;
+use PKP\submission\GenreDAO;
 
 class Handler extends \APP\handler\Handler
 {
-    public static ForthcomingPlugin $plugin;
-    public static ?int $forthcomingIssueId;
-
-    public static function setPlugin(ForthcomingPlugin $plugin): void
-    {
-        static::$plugin = $plugin;
-    }
-
-    public static function setForthcomingId(?int $forthcomingIssueId): void
-    {
-        static::$forthcomingIssueId = $forthcomingIssueId;
+    public function __construct(
+        public ForthcomingPlugin $plugin,
+        public int $forthcomingIssueId
+    ) {
+        parent::__construct();
     }
 
     /**
@@ -48,27 +44,42 @@ class Handler extends \APP\handler\Handler
         $templateMgr = TemplateManager::getManager($request);
         $this->setupTemplate($request);
 
-        if (!static::$forthcomingIssueId) {
-            return;
-        }
-
         $collector = Repo::submission()->getCollector();
-        $orderDirection = static::$plugin->getSetting($contextId, 'sortOrder') === 'desc'
+        $orderDirection = $this->plugin->getSetting($contextId, 'sortOrder') === 'desc'
             ? $collector::ORDER_DIR_DESC
             : $collector::ORDER_DIR_ASC;
 
         $submissions = $collector
             ->filterByContextIds([$contextId])
-            ->filterByIssueIds([static::$forthcomingIssueId])
+            ->filterByIssueIds([$this->forthcomingIssueId])
             ->filterByStatus([Submission::STATUS_PUBLISHED])
             ->orderBy($collector::ORDERBY_DATE_PUBLISHED, $orderDirection)
             ->getMany()
-            ->filter(fn (Submission $submission) => (int) ($publication = $submission->getCurrentPublication())?->getData('issueId') === static::$forthcomingIssueId && $publication->getData('datePublished'))
+            ->filter(fn (Submission $submission) => (int) ($publication = $submission->getCurrentPublication())?->getData('issueId') === $this->forthcomingIssueId && $publication->getData('datePublished'))
             ->toArray();
 
         $authorUserGroups = Repo::userGroup()->getByRoleIds([Role::ROLE_ID_AUTHOR], $contextId);
 
-        $templateMgr->assign(['forthcoming' => $submissions, 'authorUserGroups' => $authorUserGroups]);
-        $templateMgr->display(static::$plugin->getTemplateResource('content.tpl'));
+        $sectionHideAuthor = Repo::section()->getCollector()
+            ->filterByContextIds([$contextId])
+            ->getMany()
+            ->mapWithKeys(fn ($section) => [$section->getId() => (bool) $section->getData('hideAuthor')])
+            ->toArray();
+
+        /** @var GenreDAO $genreDao */
+        $genreDao = DAORegistry::getDAO('GenreDAO');
+        $primaryGenreIds = array_map(
+            fn ($genre) => $genre->getId(),
+            $genreDao->getPrimaryByContextId($contextId)->toArray()
+        );
+
+        $templateMgr->assign([
+            'forthcoming' => $submissions,
+            'authorUserGroups' => $authorUserGroups,
+            'sectionHideAuthor' => $sectionHideAuthor,
+            'primaryGenreIds' => $primaryGenreIds,
+            'showDatePublished' => true,
+        ]);
+        $templateMgr->display($this->plugin->getTemplateResource('content.tpl'));
     }
 }

@@ -3,8 +3,8 @@
 /**
  * @file classes/SettingsForm.php
  *
- * Copyright (c) 2014-2024 Simon Fraser University
- * Copyright (c) 2014-2024 John Willinsky
+ * Copyright (c) 2014-2026 Simon Fraser University
+ * Copyright (c) 2014-2026 John Willinsky
  * Distributed under the GNU GPL v3. For full terms see the file docs/COPYING.
  *
  * @package plugins.generic.forthcoming
@@ -25,10 +25,14 @@ use APP\plugins\generic\forthcoming\ForthcomingPlugin;
 use APP\template\TemplateManager;
 use PKP\form\Form;
 use PKP\form\validation\FormValidatorCSRF;
+use PKP\form\validation\FormValidatorInSet;
 use PKP\form\validation\FormValidatorPost;
 
 class SettingsForm extends Form
 {
+    /** @var array<int,string> Issue options for this context, keyed by issue ID */
+    private ?array $issueOptions = null;
+
     /**
      * Constructor
      */
@@ -37,6 +41,28 @@ class SettingsForm extends Form
         parent::__construct($plugin->getTemplateResource('settings.tpl'));
         $this->addCheck(new FormValidatorPost($this));
         $this->addCheck(new FormValidatorCSRF($this));
+        $this->addCheck(new FormValidatorInSet($this, 'forthcomingIssueId', 'required', 'plugins.generic.forthcoming.settings.issueInvalid', array_keys($this->getIssueOptions())));
+    }
+
+    /**
+     * Get the selectable issues: this context's published issues, plus "None"
+     */
+    private function getIssueOptions(): array
+    {
+        if ($this->issueOptions === null) {
+            $contextId = Application::get()->getRequest()->getContext()->getId();
+            $collector = Repo::issue()->getCollector();
+            $this->issueOptions = $collector
+                ->filterByContextIds([$contextId])
+                ->filterByPublished(true)
+                ->orderBy($collector::ORDERBY_SEQUENCE)
+                ->getMany()
+                ->mapWithKeys(fn (Issue $issue) => [$issue->getId() => $issue->getIssueIdentification()])
+                ->collect()
+                ->prepend(__('common.none'), 0)
+                ->toArray();
+        }
+        return $this->issueOptions;
     }
 
     /**
@@ -67,25 +93,12 @@ class SettingsForm extends Form
     public function fetch($request, $template = null, $display = false): string
     {
         $templateMgr = TemplateManager::getManager($request);
-        $contextId = Application::get()->getRequest()->getContext()->getId();
-
-        $collector = Repo::issue()->getCollector();
-        $issues = $collector
-            ->filterByContextIds([$contextId])
-            ->filterByPublished(true)
-            ->orderBy($collector::ORDERBY_SEQUENCE)
-            ->getMany()
-            ->mapWithKeys(fn (Issue $issue) => [$issue->getId() => $issue->getIssueIdentification()])
-            ->collect()
-            ->prepend(__('common.none'), 0)
-            ->toArray();
-
         $sortOrders = [
             'asc' => __('plugins.generic.forthcoming.settings.sortOrder.asc'),
             'desc' => __('plugins.generic.forthcoming.settings.sortOrder.desc'),
         ];
 
-        $templateMgr->assign(['issues' => $issues, 'sortOrders' => $sortOrders, 'pluginName' => $this->plugin->getName()]);
+        $templateMgr->assign(['issues' => $this->getIssueOptions(), 'sortOrders' => $sortOrders, 'pluginName' => $this->plugin->getName()]);
         return parent::fetch($request, $template, $display);
     }
 

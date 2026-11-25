@@ -35,3 +35,9 @@ msgstr "Oldest first (by publication date)"
 
 msgid "plugins.generic.forthcoming.settings.sortOrder.desc"
 msgstr "Newest first (by publication date)"
+
+msgid "plugins.generic.forthcoming.settings.issueInvalid"
+msgstr "Select a published issue of this journal."
+
+msgid "plugins.generic.forthcoming.navMenuItem.description"
+msgstr "Link to the page listing forthcoming articles."
